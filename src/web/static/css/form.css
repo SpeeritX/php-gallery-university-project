@@ -1,0 +1,51 @@
+form {
+	display:flex;
+	flex-wrap:wrap;
+	justify-content:center;
+	width:90%;
+	margin:auto;
+	margin-top:3em;
+}
+input, select, textarea {
+	font-family: 'Cairo', sans-serif;
+	font-size: 1em;
+	line-height: 1.5;
+	width: 100%;
+	margin: 0.3em 1em 0.3em 1em;
+	padding: 0.2em;
+	border: none;
+	background-color: transparent;
+	border-bottom: 1px solid lightgray;
+}
+
+select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+
+.small-field {
+	width:calc(50% - 2.4em);
+}
+
+.button {
+	font-family: 'Alegreya Sans SC', sans-serif;
+
+	font-size:1.3em;
+	border: none;
+	background-color: #ced1d9;
+	max-width: calc(50% - 5em);
+	margin: 1.5em;
+	cursor:pointer;
+}
+
+@media only screen and (max-width: 800px) {
+    .small-field {
+        width: 100%;
+    }
+
+    .button {
+
+        max-width: calc(50% - 1em);
+        margin: 0.5em;
+    }
+}
