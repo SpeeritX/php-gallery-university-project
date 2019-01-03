@@ -11,13 +11,14 @@ function home(&$model)
 
 function contact(&$model)
 {
+	clear_db();
     return 'contact_view';
 }
 
 function gallery(&$model)
 {
-	$images = glob('images/*.{jpg,png,gif}', GLOB_BRACE);
-	$model['amount_of_pages'] = ceil(count($images) / AMOUNT_OF_IMG_ON_PAGE);
+	$model['images'] = get_images();
+	$model['amount_of_pages'] = ceil(count($model['images']) / AMOUNT_OF_IMG_ON_PAGE);
 	if($model['amount_of_pages'] == 0)
 		$model['amount_of_pages'] = 1;
 		
@@ -30,8 +31,8 @@ function gallery(&$model)
 	$model['prev'] = get_prev_page($model);
 	$model['first'] = ($model['page'] - 1) * AMOUNT_OF_IMG_ON_PAGE;
 	$model['last'] = $model['page'] * (AMOUNT_OF_IMG_ON_PAGE);
-	if($model['last'] > count($images))
-		$model['last'] = count($images);
+	if($model['last'] > count($model['images']))
+		$model['last'] = count($model['images']);
 	
     return 'gallery_view';
 }
@@ -55,44 +56,57 @@ function upload_image(&$model)
 		return 'upload_view';
 	}
 
-	$target_file = $target_dir . basename($_FILES["image"]["name"]);
 	$uploadOk = 1;
-	$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+	$imageFileType = strtolower(pathinfo($target_dir . basename($_FILES["image"]["name"]),PATHINFO_EXTENSION));
 	// Check if image file is a actual image or fake image
-	if(isset($_POST["submit"])) {
+	if(isset($_POST["submit"])) 
+	{
 		$check = getimagesize($_FILES["image"]["tmp_name"]);
-		if($check !== false) {
+		if($check !== false) 
+		{
 			$model['statement'] .= "File is an image - " . $check["mime"] . ".";
 			$uploadOk = 1;
-		} else {
+		} 
+		else 
+		{
 			$model['statement'] .= "File is not an image.";
 			$uploadOk = 0;
 		}
 	}
-
-	// Check if file already exists
-	if (file_exists($target_file)) {
-		$model['statement'] .= "Sorry, file already exists.";
-		$uploadOk = 0;
-	}
 	// Check file size
-	if ($_FILES["image"]["size"] > 1000000) {
+	if ($_FILES["image"]["size"] > 1000000) 
+	{
 		$model['statement'] .= "Sorry, your file is too large.";
 		$uploadOk = 0;
 	}
 	// Allow certain file formats
-	if($imageFileType != "jpg" && $imageFileType != "png") {
+	if($imageFileType != "jpg" && $imageFileType != "png") 
+	{
 		$model['statement'] .= "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
 		$uploadOk = 0;
 	}
 	// Check if $uploadOk is set to 0 by an error
-	if ($uploadOk == 0) {
+	if ($uploadOk == 0) 
+	{
 		$model['statement'] .= "Sorry, your file was not uploaded.";
 	// if everything is ok, try to upload file
-	} else {
-		if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-			$model['statement'] .= "The file ". basename( $_FILES["image"]["name"]). " has been uploaded.";
-		} else {
+	} 
+	else 
+	{
+		$new_image = 
+		[
+			'title' => $_POST["title"],
+			'author' => $_POST["author"],
+			'name' => $imageFileType
+		];
+		$name = push_image($new_image);
+		$target_file = $target_dir . $name;
+		if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) 
+		{
+			$model['statement'] .= "The file ". $_POST["title"] . " has been uploaded.";
+		} 
+		else 
+		{
 			$model['statement'] .= "Sorry, there was an error uploading your file.";
 		}
 	}

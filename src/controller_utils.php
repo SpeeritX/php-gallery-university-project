@@ -30,3 +30,8 @@ function &get_prev_page(&$model)
 
 	return $page;
 }
+
+function save_image($src, $name)
+{
+
+}

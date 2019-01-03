@@ -18,24 +18,27 @@ function get_db()
     return $db;
 }
 
-function add_image($image)
+function clear_db()
 {
-    $db = get_db();
-
-	$check = $db->products->find(['name' => $image['name']]);
-    if ($check > 0) {
-        return false;
-    } else {
-        $db->products->replaceOne(['_id' => new ObjectID($id)], $product);
-    }
-
-    return true;
+	$db = get_db();	
+	$db->images->deleteMany([]);
 }
 
-function get_products()
+function push_image($image)
+{
+	$image['name'] = rand(1, 1000) . '.' . $image['name'];
+
+    $db = get_db();
+
+	$db->images->insertOne($image);
+
+    return $image['name'];
+}
+
+function get_images()
 {
     $db = get_db();
-    return $db->products->find()->toArray();
+    return $db->images->find()->toArray();
 }
 
 function get_products_by_category($cat)

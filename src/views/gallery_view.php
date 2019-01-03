@@ -14,13 +14,13 @@ const IMG_PATH = 'images/';
 			<section>
 				<h2>Co warto przeczytać?</h2>
 
-				<?php $images = glob(IMG_PATH . '*.{jpg,png,gif}', GLOB_BRACE);?>
+				<?php $images = $model['images'];?>
 				<div class="gallery">
 					<?php for($i = $model['first']; $i < $model['last']; ++$i) : ?>
 						<div class="img-container zoom">
-							<a target="_blank" href="<?= $images[$i] ?>">
-								<img src="<?= $images[$i]?>" />
-								<h3><?= substr($images[$i], strlen(IMG_PATH), strlen($images[$i]) - 4 - strlen(IMG_PATH)) ?></h3>
+							<a target="_blank" href="<?= $images[$i]['name'] ?>">
+								<img src="<?=IMG_PATH . $images[$i]['name']?>" />
+								<h3><?= $images[$i]['title'] . ' - ' . $images[$i]['author'] ?></h3>
 							</a>
 						</div>
 					<?php endfor ?>
