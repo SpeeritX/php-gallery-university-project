@@ -11,14 +11,17 @@
 		<div class="container">
 			<section>
 			<h2>Dodaj zdjęcie</h2>
-				<form action="image/upload" method="post" class="wide" data-role="image_form" enctype="multipart/form-data" />
+				<?php if(isset($model['statement'])): ?>
+					<?php include "includes/statement.inc.php"; ?>
+				<?php endif ?>
 
-				<input type="file" name="image" id="image" required />
-				<input type="text" name="title" placeholder="Tytuł" required />
-				<input type="text" name="author" placeholder="Autor" required />
-				<input type="text" name="watermark" placeholder="Znak wodny" required />
-				<input class="button" type="submit" name="upload" value="Wyślij"/>
-			</form>
+				<form action="image-upload" method="post" class="wide" data-role="image_form" enctype="multipart/form-data" />
+					<input type="file" name="image" id="image" required />
+					<input type="text" name="title" placeholder="Tytuł" required />
+					<input type="text" name="author" placeholder="Autor" required />
+					<input type="text" name="watermark" placeholder="Znak wodny" required />
+					<input class="button" type="submit" name="upload" value="Wyślij"/>
+				</form>
 			</section>
 		</div>
 	</main>

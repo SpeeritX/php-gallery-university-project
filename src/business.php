@@ -18,6 +18,20 @@ function get_db()
     return $db;
 }
 
+function add_image($image)
+{
+    $db = get_db();
+
+	$check = $db->products->find(['name' => $image['name']]);
+    if ($check > 0) {
+        return false;
+    } else {
+        $db->products->replaceOne(['_id' => new ObjectID($id)], $product);
+    }
+
+    return true;
+}
+
 function get_products()
 {
     $db = get_db();
