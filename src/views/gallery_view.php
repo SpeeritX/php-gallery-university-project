@@ -1,6 +1,3 @@
-<?php 
-const IMG_PATH = 'images/';
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,8 +15,8 @@ const IMG_PATH = 'images/';
 				<div class="gallery">
 					<?php for($i = $model['first']; $i < $model['last']; ++$i) : ?>
 						<div class="img-container zoom">
-							<a target="_blank" href="<?= $images[$i]['name'] ?>">
-								<img src="<?=IMG_PATH . $images[$i]['name']?>" />
+							<a target="_blank" href="<?= IMG_PATH . 'mark/' . $images[$i]['name'] ?>">
+								<img src="<?=IMG_PATH . 'thumbnails/' . $images[$i]['name']?>" />
 								<h3><?= $images[$i]['title'] . ' - ' . $images[$i]['author'] ?></h3>
 							</a>
 						</div>

@@ -1,6 +1,7 @@
 <?php
 require_once 'business.php';
 require_once 'controller_utils.php';
+const IMG_PATH = 'images/';
 
 const AMOUNT_OF_IMG_ON_PAGE = 9;
 
@@ -45,7 +46,7 @@ function add_image(&$model)
 function upload_image(&$model)
 {
 	$model['statement'] = '';
-	$target_dir = "images/";
+
 
 	if($_FILES["image"]["error"] > 0) {
 		if($_FILES["image"]["error"] == 1)
@@ -57,7 +58,7 @@ function upload_image(&$model)
 	}
 
 	$uploadOk = 1;
-	$imageFileType = strtolower(pathinfo($target_dir . basename($_FILES["image"]["name"]),PATHINFO_EXTENSION));
+	$imageFileType = strtolower(pathinfo(IMG_PATH . basename($_FILES["image"]["name"]),PATHINFO_EXTENSION));
 	// Check if image file is a actual image or fake image
 	if(isset($_POST["submit"])) 
 	{
@@ -100,9 +101,10 @@ function upload_image(&$model)
 			'name' => $imageFileType
 		];
 		$name = push_image($new_image);
-		$target_file = $target_dir . $name;
+		$target_file = IMG_PATH . $name;
 		if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) 
 		{
+			create_thumbnail($name);
 			$model['statement'] .= "The file ". $_POST["title"] . " has been uploaded.";
 		} 
 		else 
