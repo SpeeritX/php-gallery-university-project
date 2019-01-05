@@ -38,6 +38,17 @@ select {
 	cursor:pointer;
 }
 
+.radio-button {
+	font-family: 'Cairo', sans-serif;
+	width: 100%;
+	margin-top: 10px;
+	margin-left: 3px;
+}
+
+.radio {
+	width:auto;
+}
+
 @media only screen and (max-width: 800px) {
     .small-field {
         width: 100%;

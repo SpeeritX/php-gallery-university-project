@@ -31,37 +31,57 @@ function &get_prev_page(&$model)
 	return $page;
 }
 
-function create_thumbnail($name)
+function secure_input($data) 
 {
-	$dest = IMG_PATH . '/thumbnails/' . $name;
-	$src = IMG_PATH . '/' . $name;
-	/* read the source image */
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
+
+function create_thumbnail($img_name)
+{
+	$dest = IMG_PATH . '/thumbnails/' . $img_name;
+	$src = IMG_PATH . '/' . $img_name;
+
 	$source_image = imagecreatefromjpeg($src);
 	$width = imagesx($source_image);
 	$height = imagesy($source_image);
 	
-	/* find the "desired height" of this thumbnail, relative to the desired width  */
-	$desired_width = 125;
-	$desired_height = 200;
+	$thumb_width = 175;
+	$thumb_height = 280;
 	
-	/* create a new, "virtual" image */
-	$virtual_image = imagecreatetruecolor($desired_width, $desired_height);
+	$virtual_image = imagecreatetruecolor($thumb_width, $thumb_height);
 	
-	/* copy source image at a resized size */
-	imagecopyresampled($virtual_image, $source_image, 0, 0, 0, 0, $desired_width, $desired_height, $width, $height);
+	imagecopyresampled($virtual_image, $source_image, 0, 0, 0, 0, $thumb_width, $thumb_height, $width, $height);
 	
-	/* create the physical thumbnail image to its destination */
 	imagejpeg($virtual_image, $dest);
+	imagedestroy($virtual_image);
 
-	$imageProperties = imagecreatetruecolor($width, $height);
+
+}
+
+function add_watermark($img_name, $text)
+{
+	$dest = IMG_PATH . '/mark/' . $img_name;
+	$src = IMG_PATH . '/' . $img_name;
+	$source_image = imagecreatefromjpeg($src);
+	$width = imagesx($source_image);
+	$height = imagesy($source_image);
+	$virtual_image = imagecreatetruecolor($width, $height);
 	$targetLayer = imagecreatefromjpeg($src);
-	imagecopyresampled($imageProperties, $targetLayer, 0, 0, 0, 0, $width, $height, $width, $height);
-	$WaterMarkText = 'CONFIDENTIAL';
-	$watermarkColor = imagecolorallocate($imageProperties, 191,191,191);
-	//imagestring($imageProperties, 5, 130, 117, $WaterMarkText, $watermarkColor);
-	imagettftext($imageProperties, 50, -60, 100, 100, $watermarkColor, '/var/www/dev/src/web/font.ttf', $WaterMarkText);
-	imagejpeg ($imageProperties, IMG_PATH . '/mark/' . $name);
+	imagecopyresampled($virtual_image, $targetLayer, 0, 0, 0, 0, $width, $height, $width, $height);
+	$watermarkColor = imagecolorallocate($virtual_image, 171,171,171);
+	imagettftext($virtual_image, 20, 0, 25, $height - 25, $watermarkColor, '/var/www/dev/src/web/font.ttf', $text);
+	imagejpeg ($virtual_image, $dest);
 	imagedestroy($targetLayer);
-	imagedestroy($imageProperties);
+	imagedestroy($virtual_image);
+}
 
+function is_active($currect_page)
+{
+	$url_array =  explode('/', $_SERVER['REQUEST_URI']) ;
+	$url = end($url_array);  
+	if(strpos($url, $currect_page) !== false)
+		  echo 'selected'; 
 }

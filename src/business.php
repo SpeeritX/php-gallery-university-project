@@ -22,6 +22,35 @@ function clear_db()
 {
 	$db = get_db();	
 	$db->images->deleteMany([]);
+	$db->users->deleteMany([]);
+}
+
+function log_in($login, $password)
+{
+	$db = get_db();
+	$user = $db->users->findOne(['login' => $login]);
+	if($user &&  password_verify($password , $user['password']))
+	{
+		return true;
+	}
+	return false;
+}
+
+function add_user($email, $login, $password)
+{
+	$db = get_db();
+	$user = $db->users->findOne(['login' => $login]);
+	if($user != NULL)
+		return false;
+
+	$new_user = [
+		'email' => $email,
+		'login' => $login,
+		'password' => password_hash($password, PASSWORD_DEFAULT)
+	];
+
+	$db->users->insertOne($new_user);
+	return true;
 }
 
 function push_image($image)

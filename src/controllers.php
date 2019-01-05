@@ -3,9 +3,9 @@ require_once 'business.php';
 require_once 'controller_utils.php';
 const IMG_PATH = 'images/';
 
-const AMOUNT_OF_IMG_ON_PAGE = 9;
+const AMOUNT_OF_IMG_ON_PAGE = 6;
 
-function home(&$model)
+function home(&$model) 
 {
     return 'home_view';
 }
@@ -26,12 +26,12 @@ function gallery(&$model)
 	if(empty($_GET['page']))
 		$model['page'] = 1;
 	else
-		$model['page'] = $_GET['page'];
+		$model['page'] = secure_input($_GET['page']);
 	
 	$model['next'] = get_next_page($model);
 	$model['prev'] = get_prev_page($model);
 	$model['first'] = ($model['page'] - 1) * AMOUNT_OF_IMG_ON_PAGE;
-	$model['last'] = $model['page'] * (AMOUNT_OF_IMG_ON_PAGE);
+	$model['last'] = $model['page'] * (AMOUNT_OF_IMG_ON_PAGE) + 1;
 	if($model['last'] > count($model['images']))
 		$model['last'] = count($model['images']);
 	
@@ -41,6 +41,61 @@ function gallery(&$model)
 function add_image(&$model)
 {
     return 'upload_view';
+}
+
+function login(&$model)
+{
+	if ($_SERVER["REQUEST_METHOD"] === 'POST') 
+	{
+		$login = secure_input($_POST["login"]);
+		$password = secure_input($_POST["password"]);
+
+		if(log_in($login, $password))
+		{
+			$model['statement'] = 'Pomyślnie zalogowano.';
+			$_SESSION['user'] = $login;
+			$_SESSION['logged_in'] = true;
+		}
+		else 
+		{
+			$model['statement'] = 'Nieprawidłowy login lub hasło.';
+		}
+	}
+    return 'login_view';
+}
+
+function log_out(&$model)
+{
+	$_SESSION['user'] = 'Niezalogowany';
+	$_SESSION['logged_in'] = false;
+	return gallery($model);
+}
+
+function register(&$model)
+{
+	if ($_SERVER["REQUEST_METHOD"] === 'POST') 
+	{
+		$email = secure_input($_POST["email"]);
+		$login = secure_input($_POST["login"]);
+		$password = secure_input($_POST["password"]);
+		$password_again = secure_input($_POST["password_again"]);
+
+		if($password != $password_again)
+		{
+			$model['statement'] = 'Podane hasła nie są takie same.';
+		}
+		else if(add_user($email, $login, $password))
+		{
+			$model['statement'] = 'Pomyślnie zarejestrowano.';
+			$_SESSION['user'] = $login;
+			$_SESSION['logged_in'] = true;
+		}
+		else 
+		{
+			$model['statement'] = 'Podany login jest zajęty.';
+		}
+	}
+    return 'register_view';
 }
 
 function upload_image(&$model)
@@ -57,23 +112,19 @@ function upload_image(&$model)
 		return 'upload_view';
 	}
 
+	$title = secure_input($_POST["title"]);
+	$author = secure_input($_POST["author"]);
+	$watermark = secure_input($_POST["watermark"]);
+	$added_by = secure_input($_POST["added_by"]);	
+	$user = 'default';
+	if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'])
+		$user = $_SESSION['user'];
+	if(secure_input($_POST["privacy"]) == 'private')
+		$private = true;
+
 	$uploadOk = 1;
 	$imageFileType = strtolower(pathinfo(IMG_PATH . basename($_FILES["image"]["name"]),PATHINFO_EXTENSION));
-	// Check if image file is a actual image or fake image
-	if(isset($_POST["submit"])) 
-	{
-		$check = getimagesize($_FILES["image"]["tmp_name"]);
-		if($check !== false) 
-		{
-			$model['statement'] .= "File is an image - " . $check["mime"] . ".";
-			$uploadOk = 1;
-		} 
-		else 
-		{
-			$model['statement'] .= "File is not an image.";
-			$uploadOk = 0;
-		}
-	}
+
 	// Check file size
 	if ($_FILES["image"]["size"] > 1000000) 
 	{
@@ -96,16 +147,20 @@ function upload_image(&$model)
 	{
 		$new_image = 
 		[
-			'title' => $_POST["title"],
-			'author' => $_POST["author"],
-			'name' => $imageFileType
+			'name' => $imageFileType,
+			'title' => $title,
+			'author' => $author,
+			'added_by' => $added_by,
+			'private' => $private,
+			'user' => $user
 		];
 		$name = push_image($new_image);
 		$target_file = IMG_PATH . $name;
 		if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) 
 		{
 			create_thumbnail($name);
-			$model['statement'] .= "The file ". $_POST["title"] . " has been uploaded.";
+			add_watermark($name, $watermark);
+			$model['statement'] .= "The file ". $title . " has been uploaded.";
 		} 
 		else 
 		{
