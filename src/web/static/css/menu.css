@@ -27,7 +27,7 @@
 	flex-direction:row-reverse;
 }
 
-.login-button {
+.link-button {
 	border: 1px solid lightgray;
 	min-width: 140px;
 	max-width: 200px;
@@ -40,11 +40,11 @@
 	width: 100%;
 	transition: 0.5s;
 }
-	.login-button:hover {
+	.link-button:hover {
 		background-color: #ced1d9;
 	}
 
-.login-menu .login-button {
+.login-menu .link-button {
 	float: right;
 }
 

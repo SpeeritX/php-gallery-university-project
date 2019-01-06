@@ -1,1 +1,0 @@
-sessionStorage.setItem("previous-site", window.location.href);

@@ -8,3 +8,4 @@
 <link href="https://fonts.googleapis.com/css?family=Cairo&amp;subset=latin-ext" rel="stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="static/js/menu-script.js"></script>
+<script src="static/js/search.js"></script>

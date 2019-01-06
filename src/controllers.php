@@ -12,29 +12,12 @@ function home(&$model)
 
 function contact(&$model)
 {
-	clear_db();
+	//clear_db();
     return 'contact_view';
 }
 
 function gallery(&$model)
 {
-	$model['images'] = get_images();
-	$model['amount_of_pages'] = ceil(count($model['images']) / AMOUNT_OF_IMG_ON_PAGE);
-	if($model['amount_of_pages'] == 0)
-		$model['amount_of_pages'] = 1;
-		
-	if(empty($_GET['page']))
-		$model['page'] = 1;
-	else
-		$model['page'] = secure_input($_GET['page']);
-	
-	$model['next'] = get_next_page($model);
-	$model['prev'] = get_prev_page($model);
-	$model['first'] = ($model['page'] - 1) * AMOUNT_OF_IMG_ON_PAGE;
-	$model['last'] = $model['page'] * (AMOUNT_OF_IMG_ON_PAGE) + 1;
-	if($model['last'] > count($model['images']))
-		$model['last'] = count($model['images']);
-
 	if ($_SERVER["REQUEST_METHOD"] === 'POST'  && !empty($_POST['chosen'])) 
 	{
 		$chosen_images = &get_chosen_images();
@@ -42,11 +25,11 @@ function gallery(&$model)
 		{
 			$image = get_image_by_id($chosen);
 			if(!in_array($image, $chosen_images))
-			{
 				$chosen_images[] = $image;
-			}
 		}
 	}
+
+	calculate_gallery_model($model, get_images());
 
     return 'gallery_view';
 }
@@ -60,30 +43,43 @@ function selected(&$model)
 		{
 			$image = get_image_by_id($chosen);
 			if (($key = array_search($image, $chosen_images)) !== false) 
-			{
 				array_splice($chosen_images, $key, 1);
-			}
 		}
 	}
 
-	$model['images'] = get_chosen_images();	
-	$model['amount_of_pages'] = ceil(count($model['images']) / AMOUNT_OF_IMG_ON_PAGE);
-	if($model['amount_of_pages'] == 0)
-		$model['amount_of_pages'] = 1;
-		
-	if(empty($_GET['page']))
-		$model['page'] = 1;
-	else
-		$model['page'] = secure_input($_GET['page']);
-	
-	$model['next'] = get_next_page($model);
-	$model['prev'] = get_prev_page($model);
-	$model['first'] = ($model['page'] - 1) * AMOUNT_OF_IMG_ON_PAGE;
-	$model['last'] = $model['page'] * (AMOUNT_OF_IMG_ON_PAGE) + 1;
-	if($model['last'] > count($model['images']))
-		$model['last'] = count($model['images']);
+	calculate_gallery_model($model, get_chosen_images());
 
     return 'gallery_view';
+}
+
+function search(&$model)
+{
+	calculate_gallery_model($model, get_images());
+
+	if(isset($_GET["q"]))
+	{
+		$q = strtolower($_GET["q"]);
+		if(true)
+		{
+			$images = $model["images"];
+			$model["images"] = [];
+
+			foreach($images as $img)
+			{
+				if(strpos(strtolower($img['title']), $q) !== false || 
+					strpos(strtolower($img['author']), $q) !== false || 
+					strpos(strtolower($img['added_by']), $q) !== false)
+				{
+					$model["images"][] = $img;
+				}
+			}
+		}
+		return 'images_view';
+	}
+	else 
+	{
+		return 'search_view';
+	}
 }
 
 function add_image(&$model)
@@ -112,9 +108,9 @@ function login(&$model)
     return 'login_view';
 }
 
-function log_out(&$model)
+function logout(&$model)
 {
-	$_SESSION['user'] = 'Niezalogowany';
+	$_SESSION['user'] = NULL;
 	$_SESSION['logged_in'] = false;
 	return gallery($model);
 }
@@ -135,6 +131,7 @@ function register(&$model)
 		else if(add_user($email, $login, $password))
 		{
 			$model['statement'] = 'Pomyślnie zarejestrowano.';
+			$model['registered'] = true;
 			$_SESSION['user'] = $login;
 			$_SESSION['logged_in'] = true;
 		}
@@ -150,46 +147,44 @@ function upload_image(&$model)
 {
 	$model['statement'] = '';
 
-
-	if($_FILES["image"]["error"] > 0) {
-		if($_FILES["image"]["error"] == 1)
-			$model['statement'] .= "File is too big to upload. ";
+	if($_FILES['image']['error'] > 0) 
+	{
+		if($_FILES['image']['error'] == 1)
+			$model['statement'] .= "Plik był zbyt duży do wysłania. ";
 		else
-			$model['statement'] .= "Error occured. ";
-
+			$model['statement'] .= "Wystąpił błąd podczas wysyłania pliku. ";
 		return 'upload_view';
 	}
 
-	$title = secure_input($_POST["title"]);
-	$author = secure_input($_POST["author"]);
-	$watermark = secure_input($_POST["watermark"]);
-	$added_by = secure_input($_POST["added_by"]);	
+	$title = secure_input($_POST['title']);
+	$author = secure_input($_POST['author']);
+	$watermark = secure_input($_POST['watermark']);
+	$added_by = secure_input($_POST['added_by']);	
 	$user = 'default';
 	if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'])
 		$user = $_SESSION['user'];
-	if(isset($_POST["privacy"]) && secure_input($_POST["privacy"]) == 'private')
+	if(isset($_POST['privacy']) && secure_input($_POST['privacy']) == 'private')
 		$private = true;
 
-	$uploadOk = 1;
-	$imageFileType = strtolower(pathinfo(IMG_PATH . basename($_FILES["image"]["name"]),PATHINFO_EXTENSION));
-
-	// Check file size
-	if ($_FILES["image"]["size"] > 1000000) 
+	$imageFileType = strtolower(pathinfo(IMG_PATH . basename($_FILES['image']['name']),PATHINFO_EXTENSION));
+	$imageFileType = secure_input($imageFileType);
+	
+	$upload_result = 1;
+	if ($_FILES['image']['size'] > 1000000) 
 	{
-		$model['statement'] .= "Sorry, your file is too large.";
-		$uploadOk = 0;
+		$model['statement'] .= "Plik jest zbyt duży. ";
+		$upload_result = 0;
 	}
-	// Allow certain file formats
+
 	if($imageFileType != "jpg" && $imageFileType != "png") 
 	{
-		$model['statement'] .= "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-		$uploadOk = 0;
+		$model['statement'] .= "Dozwolone są tylko pliki: jpg, png. ";
+		$upload_result = 0;
 	}
-	// Check if $uploadOk is set to 0 by an error
-	if ($uploadOk == 0) 
+
+	if ($upload_result == 0) 
 	{
-		$model['statement'] .= "Sorry, your file was not uploaded.";
-	// if everything is ok, try to upload file
+		$model['statement'] = "Wystąpił Błąd. " . $model['statement'];
 	} 
 	else 
 	{
@@ -205,15 +200,15 @@ function upload_image(&$model)
 		];
 		$name = push_image($new_image);
 		$target_file = IMG_PATH . $name;
-		if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) 
+		if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) 
 		{
 			create_thumbnail($name);
 			add_watermark($name, $watermark);
-			$model['statement'] .= "The file ". $title . " has been uploaded.";
+			$model['statement'] .= "Książka $title została dodana.";
 		} 
 		else 
 		{
-			$model['statement'] .= "Sorry, there was an error uploading your file.";
+			$model['statement'] .= "Wystąpił nieznany błąd.";
 		}
 	}
     return 'upload_view';

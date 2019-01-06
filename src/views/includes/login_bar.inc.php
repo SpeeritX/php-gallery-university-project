@@ -9,7 +9,7 @@
 			<?php endif ?>
 		</div>
 
-		<a class="login-button" href="add-image">Dodaj Książkę</a>
+		<a class="link-button" href="add-image">Dodaj Książkę</a>
 	</div>
 		<?php if(isset($_SESSION['logged_in']) && $_SESSION['logged_in']) : ?>
 			<?php include_once "log_out.inc.php"; ?>

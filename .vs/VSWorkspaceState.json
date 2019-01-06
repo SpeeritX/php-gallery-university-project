@@ -4,10 +4,11 @@
     "\\src",
     "\\src\\views",
     "\\src\\views\\includes",
+    "\\src\\views\\partial",
     "\\src\\web",
     "\\src\\web\\static",
     "\\src\\web\\static\\css"
   ],
-  "SelectedNode": "\\src\\controller_utils.php",
+  "SelectedNode": "\\src\\views\\home_view.php",
   "PreviewInSolutionExplorer": false
 }

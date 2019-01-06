@@ -6,9 +6,10 @@ $routing = [
     '/gallery' => 'gallery',
     '/contact' => 'contact',
     '/login' => 'login',
-    '/log-out' => 'log_out',
+    '/log-out' => 'logout',
     '/register' => 'register',
     '/add-image' => 'add_image',
     '/image-upload' => 'upload_image',
-    '/selected' => 'selected'
+    '/selected' => 'selected',
+    '/search' => 'search'
 ];

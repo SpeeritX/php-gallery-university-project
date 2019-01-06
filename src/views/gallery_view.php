@@ -2,42 +2,55 @@
 
 <section>
 	<h2>Co warto przeczytać?</h2>
-		
-	
 
-	<form method="post">
-	<div class="gallery-menu">
-		<a class="<?php if(is_active('gallery')): ?> selected <?php endif ?>" href="gallery"> Wszystkie </a> |
-		<a class="<?php if(is_active('selected')): ?> selected <?php endif ?>" href="selected"> Zapamiętane </a>
-		<div>
-			<input type="submit" name="apply" value="Zatwierdź zaznaczone"/>
+	<form id="gallery-container" method="post">
+		<div class="gallery-menu">
+			<a class="<?php if(is_active('gallery')): ?> selected <?php endif ?>" href="gallery"> Wszystkie </a> |
+			<a class="<?php if(is_active('selected')): ?> selected <?php endif ?>" href="selected"> Zapamiętane </a>
+			<div>
+				<input type="submit" name="apply" 
+					<?php if(is_active('gallery')): ?> 
+						value="Zatwierdź zaznaczone" 
+					<?php else: ?>
+						value="Usuń zaznaczone z zapamiętanych"
+					<?php endif ?>/>
+			</div>
 		</div>
-	</div>
-		<div class="gallery">
-			<?php $img = $model['images'];?>
-			<?php for($i = $model['first']; $i < $model['last']; ++$i) : ?>
-				<?php if($img[$i]['private'] == false ||
-						(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] && $_SESSION['user'] == $img[$i]['user'])): ?>
-					<div class="img-container">
-						<a class="zoom" target="_blank" href="<?= IMG_PATH . 'mark/' . $img[$i]['name'] ?>">
-							<img src="<?=IMG_PATH . 'thumbnails/' . $img[$i]['name']?>" />
-						</a>
-						<div class="img-description"> 
-							<input class="img-checkbox" type="checkbox" name="chosen[]" value="<?= $img[$i]['_id'] ?>" 
-								<?php if(is_active('gallery') && is_chosen($img[$i]['_id'])): ?> checked <?php endif ?> />
-							<p> Tytuł: <?= $img[$i]['title'] ?> </p> 
-							<p> Autor: <?= $img[$i]['author'] ?> </p> 
-							<p> Dodano przez: <?= $img[$i]['added_by'] ?> </p>
-						</div>
+
+		<div id="search-bar">
+			<a class="link-button" href="search">Wyszukaj</a>
+		</div>
+
+		<div id="gallery">
+			<?php foreach($model['images'] as $img) : ?>
+				<div class="img-container">
+					<a class="zoom" target="_blank" href="<?= IMG_PATH . 'mark/' . $img['name'] ?>">
+						<img src="<?=IMG_PATH . 'thumbnails/' . $img['name']?>" />
+					</a>
+					<div class="img-description"> 
+						<input class="img-checkbox" type="checkbox" name="chosen[]" value="<?= $img['_id'] ?>" 
+							<?php if(is_active('gallery') && is_chosen($img['_id'])): ?> 
+								checked 
+							<?php endif ?> />
+						<p> Tytuł: <?= $img['title'] ?> </p> 
+						<p> Autor: <?= $img['author'] ?> </p> 
+						<p> Dodano przez: <?= $img['added_by'] ?> </p>
+						<?php if($img['private']): ?>
+							<p class="private-info" > Prywatne </p>
+						<?php endif ?>
 					</div>
-				<?php endif ?>
-			<?php endfor ?>	
+				</div>
+			<?php endforeach ?>	
 		</div>
 		
 	</form>
 	<div id="pages">
-		<a class="page-button" href="gallery?page=<?= $model['prev']?>"> Poprzednia strona </a>
-		<a class="page-button" href="gallery?page=<?= $model['next']?>"> Następna strona </a>
+		<?php if($model['prev']): ?>
+			<a class="page-button" href="gallery?page=<?= $model['prev']?>"> Poprzednia strona </a>
+		<?php endif ?>
+		<?php if($model['next']): ?>
+			<a class="page-button" href="gallery?page=<?= $model['next']?>"> Następna strona </a>
+		<?php endif ?>
 	</div>
 </section>
 
