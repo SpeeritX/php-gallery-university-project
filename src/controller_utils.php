@@ -83,5 +83,25 @@ function is_active($currect_page)
 	$url_array =  explode('/', $_SERVER['REQUEST_URI']) ;
 	$url = end($url_array);  
 	if(strpos($url, $currect_page) !== false)
-		  echo 'selected'; 
+		  return true;
+	return false;
+}
+
+function &get_chosen_images()
+{
+	if (!isset($_SESSION['chosen_images'])) 
+	{
+        $_SESSION['chosen_images'] = [];
+    }
+
+    return $_SESSION['chosen_images'];
+}
+
+function is_chosen($id)
+{
+	$chosen_images = &get_chosen_images();
+	if (array_search(get_image_by_id($id), $chosen_images) !== false) 
+		return true;
+
+	return false;
 }

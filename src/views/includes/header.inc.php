@@ -6,9 +6,9 @@
 	<meta name="author" content="Jędrzej Głowaczewski" />
 	<title>Książki - fantastyka</title>
 	<link rel="stylesheet" href="static/css/style.css" />
-	<link rel="stylesheet" href="static/css/menu.css" />
 	<link rel="stylesheet" href="static/css/contact.css" />
 	<link rel="stylesheet" href="static/css/form.css" />
+		<link rel="stylesheet" href="static/css/menu.css" />
 	<link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300,300i&amp;subset=latin-ext" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Cairo&amp;subset=latin-ext" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -53,14 +53,14 @@
         </div>
 		<ul id="main-menu" class="main-menu">
 			<li class="dropdown">
-				<a class="<?php is_active('home');?>" href="home"> Wstęp </a>
+				<a class="<?php if(is_active('home')): ?> selected <?php endif ?>" href="home"> Wstęp </a>
 				<div class="dropdown-content">
 					<a onclick="ToggleMenu()" href="home#generally">Ogółem</a>
 					<a onclick="ToggleMenu()" href="home#in-poland">W Polsce</a>
 				</div>
 			</li>
-			<li><a class="<?php is_active('gallery');?>" href="gallery"> Co Przeczytać? </a></li>
-			<li><a class="<?php is_active('contact');?>" href="contact"> Kontakt </a></li>
+			<li><a class="<?php if(is_active('gallery') || is_active('selected')): ?> selected <?php endif ?>" href="gallery"> Co Przeczytać? </a></li>
+			<li><a class="<?php if(is_active('contact')): ?> selected <?php endif ?>" href="contact"> Kontakt </a></li>
 		</ul>
 	</div>
 </nav>

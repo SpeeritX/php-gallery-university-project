@@ -7,7 +7,7 @@
 		<?php include "includes/statement.inc.php"; ?>
 	<?php endif ?>
 
-	<form method="post"/>
+	<form method="post">
 		<input type="email" name="email" placeholder="E-mail" required />
 		<input type="text" name="login" placeholder="Login" required />
 		<input type="password" name="password" placeholder="Hasło" required />

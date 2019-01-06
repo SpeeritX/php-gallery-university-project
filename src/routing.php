@@ -10,4 +10,5 @@ $routing = [
     '/register' => 'register',
     '/add-image' => 'add_image',
     '/image-upload' => 'upload_image',
+    '/selected' => 'selected'
 ];

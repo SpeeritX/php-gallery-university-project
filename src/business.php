@@ -23,6 +23,7 @@ function clear_db()
 	$db = get_db();	
 	$db->images->deleteMany([]);
 	$db->users->deleteMany([]);
+	$_SESSION['chosen_images'] = [];
 }
 
 function log_in($login, $password)
@@ -55,10 +56,9 @@ function add_user($email, $login, $password)
 
 function push_image($image)
 {
-	$image['name'] = rand(1, 1000) . '.' . $image['name'];
-
     $db = get_db();
-
+	$image['_id'] = new ObjectID();
+	$image['name'] = $image['_id'] . '.' . $image['name'];
 	$db->images->insertOne($image);
 
     return $image['name'];
@@ -70,34 +70,8 @@ function get_images()
     return $db->images->find()->toArray();
 }
 
-function get_products_by_category($cat)
+function get_image_by_id($id)
 {
-    $db = get_db();
-    $products = $db->products->find(['cat' => $cat]);
-    return $products;
-}
-
-function get_product($id)
-{
-    $db = get_db();
-    return $db->products->findOne(['_id' => new ObjectID($id)]);
-}
-
-function save_product($id, $product)
-{
-    $db = get_db();
-
-    if ($id == null) {
-        $db->products->insertOne($product);
-    } else {
-        $db->products->replaceOne(['_id' => new ObjectID($id)], $product);
-    }
-
-    return true;
-}
-
-function delete_product($id)
-{
-    $db = get_db();
-    $db->products->deleteOne(['_id' => new ObjectID($id)]);
+	$db = get_db();	
+	return $db->images->findOne(['_id' => new ObjectID($id)]);
 }

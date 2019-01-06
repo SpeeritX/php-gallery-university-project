@@ -34,7 +34,55 @@ function gallery(&$model)
 	$model['last'] = $model['page'] * (AMOUNT_OF_IMG_ON_PAGE) + 1;
 	if($model['last'] > count($model['images']))
 		$model['last'] = count($model['images']);
+
+	if ($_SERVER["REQUEST_METHOD"] === 'POST'  && !empty($_POST['chosen'])) 
+	{
+		$chosen_images = &get_chosen_images();
+		foreach($_POST['chosen'] as $chosen)
+		{
+			$image = get_image_by_id($chosen);
+			if(!in_array($image, $chosen_images))
+			{
+				$chosen_images[] = $image;
+			}
+		}
+	}
+
+    return 'gallery_view';
+}
+
+function selected(&$model)
+{
+	if ($_SERVER["REQUEST_METHOD"] === 'POST' && !empty($_POST['chosen'])) 
+	{
+		$chosen_images = &get_chosen_images();
+		foreach($_POST['chosen'] as $chosen)
+		{
+			$image = get_image_by_id($chosen);
+			if (($key = array_search($image, $chosen_images)) !== false) 
+			{
+				array_splice($chosen_images, $key, 1);
+			}
+		}
+	}
+
+	$model['images'] = get_chosen_images();	
+	$model['amount_of_pages'] = ceil(count($model['images']) / AMOUNT_OF_IMG_ON_PAGE);
+	if($model['amount_of_pages'] == 0)
+		$model['amount_of_pages'] = 1;
+		
+	if(empty($_GET['page']))
+		$model['page'] = 1;
+	else
+		$model['page'] = secure_input($_GET['page']);
 	
+	$model['next'] = get_next_page($model);
+	$model['prev'] = get_prev_page($model);
+	$model['first'] = ($model['page'] - 1) * AMOUNT_OF_IMG_ON_PAGE;
+	$model['last'] = $model['page'] * (AMOUNT_OF_IMG_ON_PAGE) + 1;
+	if($model['last'] > count($model['images']))
+		$model['last'] = count($model['images']);
+
     return 'gallery_view';
 }
 
@@ -119,7 +167,7 @@ function upload_image(&$model)
 	$user = 'default';
 	if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'])
 		$user = $_SESSION['user'];
-	if(secure_input($_POST["privacy"]) == 'private')
+	if(isset($_POST["privacy"]) && secure_input($_POST["privacy"]) == 'private')
 		$private = true;
 
 	$uploadOk = 1;
@@ -152,7 +200,8 @@ function upload_image(&$model)
 			'author' => $author,
 			'added_by' => $added_by,
 			'private' => $private,
-			'user' => $user
+			'user' => $user,
+			'_id' => null
 		];
 		$name = push_image($new_image);
 		$target_file = IMG_PATH . $name;
