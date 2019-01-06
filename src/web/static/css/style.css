@@ -162,8 +162,9 @@ footer.container{
 .img-description {
 	font-family: 'Cairo', sans-serif;
 	font-size: 1em;
+	width:100%;
 	text-align: left;
-	padding: 10px 18px;
+	padding: 18px;
 }
 
 	.img-description p {
@@ -171,33 +172,56 @@ footer.container{
 		text-align: left;
 	}
 
-.gallery-menu {
-	justify-content: flex-start;
-	margin-left: 60px;
-	margin-top:15px;
+.img-checkbox {
+	float:right;
+	margin:0;
+	width:auto;
 }
 
-	.gallery-menu a {
+.gallery-menu {
+	justify-content: flex-start;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	color: darkslategrey;
+}
+
+	.gallery-menu a, .gallery-menu input, #pages .page-button {
 		margin: 0 30px;
 		font-size: 1.2em;
 		color: darkslategrey;
 	}
 
-	.gallery-menu a:hover {
-		text-decoration: underline;
-		color: black;
-		transition:0.15s;
+		.gallery-menu a:hover, .gallery-menu input:hover, #pages .page-button:hover {
+			text-decoration: underline;
+			color: black;
+			transition: 0.15s;
+			cursor: pointer;
+		}
+	.gallery-menu div {
+		display:flex;
+		flex-direction:row-reverse;
+		width:100%;
 	}
 
-#pages {
-	display: flex;
-	width: 100%;
-	justify-content: center;
-}
+	.gallery-menu input {
+		border: none;
+		font-family: 'Alegreya Sans SC', sans-serif;
+		text-decoration: none;
+		transition: 0.15s;
+		width:auto;
+		padding:0;
+	}
+
+	#pages {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+	}
 
 #pages .page-button {
 	margin: 0 50px;
-	font-size:1.1em;
+
 }
 
 
