@@ -30,9 +30,3 @@ function render($view_name, $model)
     extract($model);
     include 'views/' . $view_name . '.php';
 }
-
-function is_ajax()
-{
-    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-}

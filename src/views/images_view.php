@@ -4,10 +4,12 @@
 			<img src="<?=IMG_PATH . 'thumbnails/' . $img['name']?>" />
 		</a>
 		<div class="img-description"> 
-			<input class="img-checkbox" type="checkbox" name="chosen[]" value="<?= $img['_id'] ?>" 
-				<?php if(is_active('gallery') && is_chosen($img['_id'])): ?> 
-					checked 
-				<?php endif ?> />
+			<?php if(!is_active('search')): ?>
+				<input class="img-checkbox" type="checkbox" name="chosen[]" value="<?= $img['_id'] ?>" 
+					<?php if(is_active('gallery') && is_chosen($img['_id'])): ?> 
+						checked 
+					<?php endif ?> />
+			<?php endif ?>
 			<p> Tytuł: <?= $img['title'] ?> </p> 
 			<p> Autor: <?= $img['author'] ?> </p> 
 			<p> Dodano przez: <?= $img['added_by'] ?> </p>

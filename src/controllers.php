@@ -54,7 +54,7 @@ function selected(&$model)
 
 function search(&$model)
 {
-	calculate_gallery_model($model, get_images());
+	calculate_gallery_model_all_pages($model, get_images());
 
 	if(isset($_GET["q"]))
 	{
@@ -161,6 +161,7 @@ function upload_image(&$model)
 	$watermark = secure_input($_POST['watermark']);
 	$added_by = secure_input($_POST['added_by']);	
 	$user = 'default';
+	$private = false;
 	if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'])
 		$user = $_SESSION['user'];
 	if(isset($_POST['privacy']) && secure_input($_POST['privacy']) == 'private')
@@ -202,8 +203,8 @@ function upload_image(&$model)
 		$target_file = IMG_PATH . $name;
 		if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) 
 		{
-			create_thumbnail($name);
-			add_watermark($name, $watermark);
+			create_thumbnail($name, $imageFileType);
+			add_watermark($name, $watermark, $imageFileType);
 			$model['statement'] .= "Książka $title została dodana.";
 		} 
 		else 

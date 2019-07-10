@@ -1,23 +1,10 @@
 <?php
 
-function &get_cart()
+function calculate_gallery_model(&$model, $images_set) 
 {
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = []; //pusty koszyk
-    }
+	calculate_gallery_model_all_pages($model, $images_set);
+	$images = $model['images'];
 
-    return $_SESSION['cart'];
-}
-
-function calculate_gallery_model(&$model, $images_set)
-{
-	//get images -----------------------------------------		
-	$images = [];
-	foreach($images_set as $img)
-	{
-		if(!$img['private'] || is_current_user($img['user']))
-			$images[] = $img;
-	}
 	$amount_of_pages =  ceil(count($images) / AMOUNT_OF_IMG_ON_PAGE);
 	if($amount_of_pages == 0)
 		$amount_of_pages = 1;
@@ -38,6 +25,19 @@ function calculate_gallery_model(&$model, $images_set)
 	$model['next'] = get_next_page($current_page, $amount_of_pages);
 	$model['prev'] = get_prev_page($current_page);
 	$model['images'] = get_images_on_page($images, $current_page);
+}
+
+function calculate_gallery_model_all_pages(&$model, $images_set)
+{
+	//get images -----------------------------------------		
+	$images = [];
+	foreach($images_set as $img)
+	{
+		if(!$img['private'] || is_current_user($img['user']))
+			$images[] = $img;
+	}
+
+	$model['images'] = $images;
 }
 
 function get_images_on_page($images, $page)
@@ -78,41 +78,60 @@ function secure_input($data)
   return $data;
 }
 
-function create_thumbnail($img_name)
+function create_thumbnail($img_name, $file_type)
 {
 	$dest = IMG_PATH . '/thumbnails/' . $img_name;
 	$src = IMG_PATH . '/' . $img_name;
 
-	$source_image = imagecreatefromjpeg($src);
-	$width = imagesx($source_image);
-	$height = imagesy($source_image);
-	
 	$thumb_width = 175;
 	$thumb_height = 280;
+
+	
+	if(strtolower($file_type) == 'jpg') $source_image = imagecreatefromjpeg($src);
+	else $source_image = imagecreatefrompng($src);
+
+	$width = imagesx($source_image);
+	$height = imagesy($source_image);
+
+	$hratio = $thumb_height / $height;
+    $wratio = $thumb_width / $width;
+    $ratio = max($hratio, $wratio);
+	
+	$height = $thumb_height/$ratio;
+	$width = $thumb_width/$ratio;
 	
 	$virtual_image = imagecreatetruecolor($thumb_width, $thumb_height);
 	
 	imagecopyresampled($virtual_image, $source_image, 0, 0, 0, 0, $thumb_width, $thumb_height, $width, $height);
 	
-	imagejpeg($virtual_image, $dest);
+	if(strtolower($file_type) == 'jpg') imagejpeg($virtual_image, $dest);
+	else imagepng($virtual_image, $dest);
+
 	imagedestroy($virtual_image);
-
-
 }
 
-function add_watermark($img_name, $text)
+function add_watermark($img_name, $text, $file_type)
 {
 	$dest = IMG_PATH . '/mark/' . $img_name;
 	$src = IMG_PATH . '/' . $img_name;
-	$source_image = imagecreatefromjpeg($src);
+
+	if(strtolower($file_type) == 'jpg') $source_image = imagecreatefromjpeg($src);
+	else $source_image = imagecreatefrompng($src);
+
 	$width = imagesx($source_image);
 	$height = imagesy($source_image);
 	$virtual_image = imagecreatetruecolor($width, $height);
-	$targetLayer = imagecreatefromjpeg($src);
+	
+	if(strtolower($file_type) == 'jpg') $targetLayer = imagecreatefromjpeg($src);
+	else $targetLayer = imagecreatefrompng($src);
+
 	imagecopyresampled($virtual_image, $targetLayer, 0, 0, 0, 0, $width, $height, $width, $height);
 	$watermarkColor = imagecolorallocate($virtual_image, 171,171,171);
-	imagettftext($virtual_image, 20, 0, 25, $height - 25, $watermarkColor, '/var/www/dev/src/web/font.ttf', $text);
-	imagejpeg ($virtual_image, $dest);
+	imagettftext($virtual_image, 20, 0, 25, $height - 25, $watermarkColor, '/var/www/dev/src/web/static/font.ttf', $text);
+
+	if(strtolower($file_type) == 'jpg') imagejpeg($virtual_image, $dest);
+	else imagepng($virtual_image, $dest);
+
 	imagedestroy($targetLayer);
 	imagedestroy($virtual_image);
 }
